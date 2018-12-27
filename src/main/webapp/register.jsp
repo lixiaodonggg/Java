@@ -75,14 +75,14 @@
                     "required": true,
                     "checkUserName": true
                 },
-                "passWord": {
+                "passWord1": {
                     "required": true,
                     "rangelength": [6, 12]
                 },
                 "passWord2": {
                     "required": true,
                     "rangelength": [6, 12],
-                    // "equalTo":"#passWord"
+                    "equalTo":"#passWord1"
                 },
                 "email": {
                     "required": true,
@@ -185,7 +185,7 @@
                                                             value="男">
                             男
                         </label> <label class="radio-inline"> <input type="radio"
-                                                                     name="gender" id="inlineRadio2"
+                                                                     name="gender" id="gender"
                                                                      value="女">
                         女
                     </label>
@@ -195,14 +195,14 @@
                 <div class="form-group">
                     <label for="date" class="col-sm-2 control-label">出生日期</label>
                     <div class="col-sm-6">
-                        <input type="date" class="form-control" name="date">
+                        <input type="date" class="form-control" name="date" id="date">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="date" class="col-sm-2 control-label">验证码</label>
+                    <label for="checkCode" class="col-sm-2 control-label">验证码</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="checkCode">
+                        <input type="text" class="form-control" name="checkCode" id="checkCode">
 
                     </div>
                     <div class="col-sm-2">

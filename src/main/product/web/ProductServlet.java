@@ -193,7 +193,6 @@ public class ProductServlet extends BaseServlet {
             cart.setTotal(cart.getTotal() - cart.getCartItems().get(pid).getSubtotal());
             items.remove(pid);
         }
-
         request.getSession().setAttribute("cart", cart);
         response.sendRedirect(request.getContextPath() + "/cart.jsp");
     }
