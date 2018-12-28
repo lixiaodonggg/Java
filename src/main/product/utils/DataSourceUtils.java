@@ -20,7 +20,7 @@ public class DataSourceUtils {
 
     private static DataSource dataSource = new ComboPooledDataSource();
 
-    private static ThreadLocal<Connection> tl = new ThreadLocal<Connection>();
+    private static ThreadLocal<Connection> tl = new ThreadLocal<>();
 
     // 直接可以获取一个连接池
     public static DataSource getDataSource() {

@@ -2,14 +2,19 @@ package main.product.web;
 
 import com.google.gson.Gson;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 
-import javax.mail.Session;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -19,8 +24,11 @@ import javax.servlet.http.HttpSession;
 import main.product.domain.Cart;
 import main.product.domain.CartItem;
 import main.product.domain.Category;
+import main.product.domain.Order;
+import main.product.domain.OrderItem;
 import main.product.domain.PageBean;
 import main.product.domain.Product;
+import main.product.domain.User;
 import main.product.service.ProductService;
 import main.product.utils.JedisPoolUtils;
 import redis.clients.jedis.Jedis;
@@ -197,4 +205,61 @@ public class ProductServlet extends BaseServlet {
         response.sendRedirect(request.getContextPath() + "/cart.jsp");
     }
 
+    public void submitOrder(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "login.jsp");
+            return;
+        }
+        Order order = new Order();
+
+        String oid = UUID.randomUUID().toString();
+        order.setOid(oid);
+        order.setOrdertime(new Date());
+        Cart cart = (Cart) session.getAttribute("cart");
+        if (cart == null) {
+            response.sendRedirect(request.getContextPath() + "cart.jsp");
+            return;
+        }
+        double total = cart.getTotal();
+        order.setTotal(total);
+        order.setState(0);
+        order.setAddress(null);
+        order.setName(null);
+        order.setTelephone(null);
+        order.setUser(user);
+        Map<String, CartItem> map = cart.getCartItems();
+        for (CartItem item : map.values()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setItemid(UUID.randomUUID().toString());
+            orderItem.setOrder(order);
+            orderItem.setCount(item.getBuyNum());
+            orderItem.setProduct(item.getProduct());
+            orderItem.setSubtotal(item.getSubtotal());
+            order.getOrderItems().add(orderItem);
+        }
+        ProductService service = new ProductService();
+        service.submitOrder(order);
+        session.setAttribute("order", order);
+        response.sendRedirect(request.getContextPath() + "order_info.jsp");
+    }
+
+
+    public void confirmOrder(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Map<String, String[]> map = request.getParameterMap();
+        Order order = new Order();
+        try {
+            BeanUtils.populate(order,map);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        ProductService service = new ProductService();
+        service.updateOrderInfo(order); //更新订单的信息
+        response.sendRedirect(request.getContextPath()+"order_list.jsp");
+    }
 }

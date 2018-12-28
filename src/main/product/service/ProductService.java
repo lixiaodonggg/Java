@@ -6,8 +6,10 @@ import java.util.List;
 
 import main.product.dao.ProductDao;
 import main.product.domain.Category;
+import main.product.domain.Order;
 import main.product.domain.PageBean;
 import main.product.domain.Product;
+import main.product.utils.DataSourceUtils;
 
 public class ProductService {
     public List<Product> findHotProduct() {
@@ -89,5 +91,35 @@ public class ProductService {
             e.printStackTrace();
         }
         return product;
+    }
+
+    public void submitOrder(Order order) {
+        try {
+            DataSourceUtils.startTransaction();
+            ProductDao dao = new ProductDao();
+            dao.addOrder(order);
+            dao.addOrderItems(order);
+        } catch (Exception e) {
+            try {
+                DataSourceUtils.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            try {
+                DataSourceUtils.commitAndRelease();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void updateOrderInfo(Order order) {
+        ProductDao dao = new ProductDao();
+        try {
+            dao.updateOrderInfo(order);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
